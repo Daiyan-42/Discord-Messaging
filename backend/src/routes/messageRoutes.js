@@ -1,9 +1,11 @@
-const {listMessages}=require('../controllers/messageController');
-const express = require('express');
+const express = require("express");
+const { listMessages } = require("../controllers/messageController");
 
 const router = express.Router();
-console.log("message Route found");
 
-router.get('/:channelId',listMessages);
+router.get(
+  "/:serverId/channels/:channelId/messages",
+  listMessages
+);
 
 module.exports = router;

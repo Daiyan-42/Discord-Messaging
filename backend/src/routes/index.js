@@ -4,7 +4,7 @@ const messageRoutes = require('./messageRoutes');
 const apiRouter = express.Router();
 
 apiRouter.use('/health', healthRouter);
-apiRouter.use("/messages",messageRoutes);
+apiRouter.use("/servers",messageRoutes);
 
 
 module.exports = apiRouter;
