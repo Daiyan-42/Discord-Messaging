@@ -8,6 +8,5 @@ const env = {
   corsOrigin: process.env.CORS_ORIGIN,
   databaseUrl: process.env.DATABASE_URL,
 };
-console.log(`databaseUrl: ${env.databaseUrl}`);
 
 module.exports = env;

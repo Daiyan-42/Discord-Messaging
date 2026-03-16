@@ -5,10 +5,7 @@
 1. Install dependencies:
    - `npm install`
 2. Create env file:
-   - NODE_ENV=development
-   -PORT=3000
-   -CORS_ORIGIN=http://localhost:5173
-   -DATABASE_URL=postgresql://postgres.zwspgeupjdymursimyar:[YOUR_PASSWORD]@aws-1-ap-south-1.pooler.supabase.com:5432/postgres
+   - See .env.example for required environment variables
 
 
 3. Run in development:
