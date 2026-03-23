@@ -14,6 +14,18 @@ exports.findUserByUsername = async (username) => {
   );
 };
 
+exports.findUserForLogin = async (identifier) => {
+  return pool.query(
+    `
+      SELECT id, email, username, password_hash, display_name, date_of_birth, created_at
+      FROM users
+      WHERE lower(email) = lower($1) OR lower(username) = lower($1)
+      LIMIT 1
+    `,
+    [identifier]
+  );
+};
+
 exports.createUser = async ({ email, username, passwordHash, displayName, dateOfBirth }) => {
   return pool.query(
     `
