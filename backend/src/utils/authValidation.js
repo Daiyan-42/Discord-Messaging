@@ -65,6 +65,40 @@ const validateRegisterInput = (body = {}) => {
   };
 };
 
+const validateLoginInput = (body = {}) => {
+  const errors = {};
+  const rawIdentifier = body.identifier ?? body.emailOrUsername;
+
+  const identifier = typeof rawIdentifier === 'string' ? rawIdentifier.trim() : '';
+  const password = typeof body.password === 'string' ? body.password : '';
+
+  if (!identifier) {
+    errors.identifier = 'Identifier (email or username) is required';
+  } else {
+    const normalizedIdentifier = identifier.toLowerCase();
+    const isEmail = EMAIL_REGEX.test(normalizedIdentifier);
+    const isUsername = USERNAME_REGEX.test(normalizedIdentifier);
+
+    if (!isEmail && !isUsername) {
+      errors.identifier = 'Identifier must be a valid email or a valid username';
+    }
+  }
+
+  if (!password) {
+    errors.password = 'Password is required';
+  }
+
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors,
+    value: {
+      identifier: identifier.toLowerCase(),
+      password,
+    },
+  };
+};
+
 module.exports = {
   validateRegisterInput,
+  validateLoginInput,
 };
