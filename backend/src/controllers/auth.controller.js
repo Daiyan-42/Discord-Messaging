@@ -48,3 +48,21 @@ exports.login = async (req, res, next) => {
     return next(error);
   }
 };
+
+exports.logout = async (req, res, next) => {
+  try {
+    const data = await authService.logoutUser({
+      userId: req.auth.userId,
+      tokenId: req.auth.tokenId,
+      tokenExpiresAtEpochSeconds: req.auth.tokenExpiresAtEpochSeconds,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Logout successful',
+      data,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};

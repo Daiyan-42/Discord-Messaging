@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 
 const authModel = require('../models/auth.model');
@@ -22,15 +23,39 @@ const createAuthPayload = (user) => ({
 });
 
 const signAccessToken = (user) => {
-  return jwt.sign(
+  const tokenId = crypto.randomUUID();
+
+  const token = jwt.sign(
     {
       sub: user.id,
       email: user.email,
       username: user.username,
+      jti: tokenId,
+      type: 'access',
     },
     env.jwtSecret,
     { expiresIn: env.jwtExpiresIn }
   );
+
+  const decoded = jwt.decode(token);
+
+  return {
+    token,
+    tokenId,
+    expiresAtEpochSeconds: decoded.exp,
+    expiresAt: new Date(decoded.exp * 1000).toISOString(),
+  };
+};
+
+const createAuthResponse = (user) => {
+  const accessToken = signAccessToken(user);
+
+  return {
+    token: accessToken.token,
+    tokenType: 'Bearer',
+    expiresAt: accessToken.expiresAt,
+    user: createAuthPayload(user),
+  };
 };
 
 exports.registerUser = async ({ email, username, password, displayName, dateOfBirth }) => {
@@ -78,12 +103,7 @@ exports.registerUser = async ({ email, username, password, displayName, dateOfBi
     throw error;
   }
 
-  const token = signAccessToken(createdUser);
-
-  return {
-    token,
-    user: createAuthPayload(createdUser),
-  };
+  return createAuthResponse(createdUser);
 };
 
 exports.loginUser = async ({ identifier, password }) => {
@@ -104,10 +124,22 @@ exports.loginUser = async ({ identifier, password }) => {
     throw createHttpError(401, 'Invalid credentials');
   }
 
-  const token = signAccessToken(user);
+  return createAuthResponse(user);
+};
+
+exports.logoutUser = async ({ userId, tokenId, tokenExpiresAtEpochSeconds }) => {
+  if (!tokenId || !tokenExpiresAtEpochSeconds) {
+    throw createHttpError(401, 'Invalid token');
+  }
+
+  await authModel.revokeAccessToken({
+    tokenId,
+    userId,
+    expiresAtEpochSeconds: tokenExpiresAtEpochSeconds,
+  });
 
   return {
-    token,
-    user: createAuthPayload(user),
+    loggedOutAt: new Date().toISOString(),
+    userId,
   };
 };
