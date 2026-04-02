@@ -4,30 +4,34 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppContext";
 import { ServerSidebar } from "../server/ServerSidebar";
 import { ChannelSidebar } from "../channel/ChannelSidebar";
-import { Menu } from "lucide-react";
+import { Loader2, Menu } from "lucide-react";
 import { Button } from "../ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 
 export function MainLayout() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const { serverId, channelId } = useParams();
   const navigate = useNavigate();
   const { setSelectedServer, setSelectedChannel, servers, channels } = useApp();
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
 
   useEffect(() => {
+    if (isLoading) {
+      return;
+    }
+
     if (!isAuthenticated) {
       navigate("/login");
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, isLoading, navigate]);
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (isLoading || !isAuthenticated) return;
 
     if (!serverId && servers.length > 0) {
       navigate(`/app/${servers[0].id}`);
     }
-  }, [isAuthenticated, serverId, servers, navigate]);
+  }, [isAuthenticated, isLoading, serverId, servers, navigate]);
 
   useEffect(() => {
     if (serverId) {
@@ -44,6 +48,17 @@ export function MainLayout() {
       }
     }
   }, [serverId, channelId, channels, navigate, setSelectedServer, setSelectedChannel]);
+
+  if (isLoading) {
+    return (
+      <div className="h-screen w-full bg-[#313338] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-[#b5bac1]">
+          <Loader2 className="h-7 w-7 animate-spin text-[#5865f2]" />
+          <p className="text-sm">Restoring your session...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return null;
