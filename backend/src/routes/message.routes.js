@@ -5,13 +5,21 @@ const {
   addReaction,
   removeReaction
 } = require("../controllers/message.controller");
+const { uploadMessageAttachments } = require("../middlewares/messageUpload");
 
 
 const {updateMessage,deleteMessage} = require("../controllers/message.controller"); 
 
 const router = express.Router({ mergeParams: true });
 
-router.post("/", sendMessage);
+router.post(
+  "/",
+  uploadMessageAttachments.fields([
+    { name: "file", maxCount: 1 },
+    { name: "attachments", maxCount: 10 },
+  ]),
+  sendMessage
+);
 
 router.get("/", listMessages);
 
