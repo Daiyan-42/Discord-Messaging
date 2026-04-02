@@ -1,5 +1,39 @@
 const messageService = require("../services/message.service");
 
+exports.sendMessage = async (req, res) => {
+  const { serverId, channelId } = req.params;
+  const userId = req.auth.userId;
+  const { content } = req.body;
+
+  if (!content || !String(content).trim()) {
+    return res.status(400).json({
+      error: "Validation error",
+      details: ["content is required"]
+    });
+  }
+
+  try {
+    const createdMessage = await messageService.sendMessage({
+      serverId,
+      channelId,
+      authorId: userId,
+      content: String(content).trim(),
+    });
+
+    return res.status(201).json({
+      message: createdMessage.rows[0],
+    });
+  } catch (err) {
+    console.error(err);
+
+    if (err.statusCode) {
+      return res.status(err.statusCode).json({ error: err.message });
+    }
+
+    return res.status(500).json({ error: "Database error" });
+  }
+};
+
 exports.listMessages = async (req, res) => {
   const { serverId, channelId } = req.params;
   const { limit = 50, before, after } = req.query;

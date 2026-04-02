@@ -1,5 +1,40 @@
 const pool = require("../db");
 
+exports.findChannelInServer = async ({ serverId, channelId }) => {
+  return pool.query(
+    `
+      SELECT id
+      FROM channels
+      WHERE id = $1 AND server_id = $2
+      LIMIT 1
+    `,
+    [channelId, serverId]
+  );
+};
+
+exports.findUserById = async (userId) => {
+  return pool.query(
+    `
+      SELECT id
+      FROM users
+      WHERE id = $1
+      LIMIT 1
+    `,
+    [userId]
+  );
+};
+
+exports.createMessage = async ({ channelId, authorId, content }) => {
+  return pool.query(
+    `
+      INSERT INTO messages (channel_id, author_id, content)
+      VALUES ($1, $2, $3)
+      RETURNING id, channel_id, author_id, content, created_at, edited_at
+    `,
+    [channelId, authorId, content]
+  );
+};
+
 exports.listMessages = async ({ channelId, before, after, limit = 50 }) => {
   let values = [channelId];
   let conditions = [`m.channel_id = $1`];
@@ -7,7 +42,7 @@ exports.listMessages = async ({ channelId, before, after, limit = 50 }) => {
 
   if (after) {
     conditions.push(`
-      m.created_at > (
+      m.created_at > (      router.post("/", sendMessage);
         SELECT created_at FROM messages WHERE id = $${paramIndex}
       )
     `);
