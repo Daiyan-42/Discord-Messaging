@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { loginUser, registerUser } from "../utils/api";
+import { loginUser, logoutUser, registerUser } from "../utils/api";
 
 interface User {
   id: string;
@@ -16,7 +16,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (identifier: string, password: string) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   isLoading: boolean;
 }
 
@@ -111,7 +111,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    if (token) {
+      try {
+        await logoutUser(token);
+      } catch (_error) {
+        // Continue local logout even if server-side token revocation fails.
+      }
+    }
+
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     setUser(null);
