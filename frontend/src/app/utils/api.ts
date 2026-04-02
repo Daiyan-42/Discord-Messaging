@@ -1,5 +1,9 @@
+const viteEnv = (import.meta as ImportMeta & {
+  env?: Record<string, string | undefined>;
+}).env;
+
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") || "http://localhost:3000/api/v1";
+  viteEnv?.VITE_API_BASE_URL?.replace(/\/$/, "") || "http://localhost:3000/api/v1";
 
 type RequestOptions = {
   method?: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
@@ -134,6 +138,15 @@ interface ChannelsApiResponse {
   count: number;
 }
 
+interface LogoutApiResponse {
+  success: boolean;
+  message: string;
+  data: {
+    loggedOutAt: string;
+    userId: string | number;
+  };
+}
+
 export interface MessageAttachmentApiItem {
   id: string | number;
   file_url: string;
@@ -189,6 +202,13 @@ export const loginUser = async (identifier: string, password: string) => {
   return apiRequest<AuthApiResponse>("/auth/login", {
     method: "POST",
     body: { identifier, password },
+  });
+};
+
+export const logoutUser = async (token: string) => {
+  return apiRequest<LogoutApiResponse>("/auth/logout", {
+    method: "POST",
+    token,
   });
 };
 

@@ -20,6 +20,10 @@ export function ChannelSidebar() {
   const currentServer = servers.find((s) => s.id === serverId);
   const serverChannels = channels.filter((c) => c.serverId === serverId);
 
+  const handleLogout = () => {
+    void logout();
+  };
+
   const handleChannelClick = (id: string) => {
     if (serverId) {
       navigate(`/app/${serverId}/${id}`);
@@ -105,7 +109,7 @@ export function ChannelSidebar() {
             </DropdownMenuItem>
             <DropdownMenuSeparator className="bg-[#3f4147]" />
             <DropdownMenuItem
-              onClick={logout}
+              onClick={handleLogout}
               className="text-[#f23f42] focus:text-[#f23f42] focus:bg-[#f23f42]/10"
             >
               <LogOut className="w-4 h-4 mr-2" />
