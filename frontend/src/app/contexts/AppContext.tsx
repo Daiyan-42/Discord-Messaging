@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "./AuthContext";
 import {
   addReactionToMessage,
@@ -16,6 +16,7 @@ import {
   unpinMessage,
   updateMessageContent,
 } from "../utils/api";
+import { createSocket, type AppSocket } from "../utils/socket";
 
 export interface Message {
   id: string;
@@ -132,6 +133,43 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [users, setUsers] = useState<UserProfile[]>(mockUsers);
   const [selectedServerId, setSelectedServerId] = useState<string | null>(null);
   const [selectedChannelId, setSelectedChannelId] = useState<string | null>(null);
+  const socketRef = useRef<AppSocket | null>(null);
+
+  useEffect(() => {
+    if (!isAuthenticated || !token) {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
+      return;
+    }
+
+    if (!socketRef.current) {
+      socketRef.current = createSocket(token);
+    }
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
+    };
+  }, [isAuthenticated, token]);
+
+  useEffect(() => {
+    const socket = socketRef.current;
+    if (!socket) return;
+
+    if (selectedChannelId) {
+      socket.emit("channel:join", selectedChannelId);
+    }
+
+    return () => {
+      if (selectedChannelId) {
+        socket.emit("channel:leave", selectedChannelId);
+      }
+    };
+  }, [selectedChannelId]);
 
   useEffect(() => {
     if (!user) return;
