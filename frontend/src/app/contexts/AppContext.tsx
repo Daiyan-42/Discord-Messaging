@@ -414,16 +414,32 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       );
     };
 
+    const handleMessageDeleted = (payload: {
+      messageId: string | number;
+      channelId: string | number;
+      deletedBy?: string | number;
+    }) => {
+      const incomingChannelId = String(payload.channelId);
+
+      if (!selectedChannelId || incomingChannelId !== selectedChannelId) {
+        return;
+      }
+
+      setMessages((prev) => prev.filter((msg) => msg.id !== String(payload.messageId)));
+    };
+
     socket.on("message:new", handleMessageNew);
     socket.on("message:reaction:add", handleReactionAdd);
     socket.on("message:reaction:remove", handleReactionRemove);
     socket.on("message:updated", handleMessageUpdated);
+    socket.on("message:deleted", handleMessageDeleted);
 
     return () => {
       socket.off("message:new", handleMessageNew);
       socket.off("message:reaction:add", handleReactionAdd);
       socket.off("message:reaction:remove", handleReactionRemove);
       socket.off("message:updated", handleMessageUpdated);
+      socket.off("message:deleted", handleMessageDeleted);
     };
   }, [socket, selectedChannelId, user]);
 

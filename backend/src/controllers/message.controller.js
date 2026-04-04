@@ -388,6 +388,19 @@ exports.deleteMessage = async (req, res) => {
       return res.status(403).json({ error: "Not allowed to delete this message" });
     }
 
+    try {
+      const io = getIO();
+      if (io) {
+        io.to(`channel:${channelId}`).emit("message:deleted", {
+          messageId,
+          channelId,
+          deletedBy: userId,
+        });
+      }
+    } catch (socketError) {
+      console.error("[WS] message:deleted emit error", socketError);
+    }
+
     return res.json({
       deleted: true,
       message: result,
