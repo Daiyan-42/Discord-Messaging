@@ -3,7 +3,7 @@ const viteEnv = (import.meta as ImportMeta & {
 }).env;
 
 const API_BASE_URL =
-  viteEnv?.VITE_API_BASE_URL?.replace(/\/$/, "") || "http://localhost:3000/api/v1";
+  viteEnv?.VITE_API_BASE_URL?.replace(/\/$/, "");
 
 type RequestOptions = {
   method?: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
