@@ -31,6 +31,7 @@ export function AttachmentMenu({ onClose, onFileSelect }: AttachmentMenuProps) {
       className="absolute bottom-full left-3 mb-2 bg-[#111827] border border-[#1e1f22] rounded-lg shadow-2xl overflow-hidden min-w-[200px]"
     >
       <button
+        type="button"
         onClick={() => {
           onFileSelect();
           onClose();
