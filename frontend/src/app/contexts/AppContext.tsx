@@ -203,13 +203,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         edited: false,
         reactions: [],
         pinned: false,
-        attachments: (incoming.attachments ?? []).map((attachment) => ({
-          id: String(attachment.id ?? "uploaded"),
-          fileUrl: attachment.file_url || "",
-          fileName: attachment.file_name || "attachment",
-          fileSize: attachment.file_size,
-          mimeType: attachment.mime_type,
-        })),
+        attachments: (incoming.attachments ?? [])
+          .filter((attachment) => Boolean(attachment.id))
+          .map((attachment) => ({
+            id: String(attachment.id),
+            fileUrl: attachment.file_url || "",
+            fileName: attachment.file_name || "attachment",
+            fileSize: attachment.file_size,
+            mimeType: attachment.mime_type,
+          })),
       };
 
       setMessages((prev) => {
@@ -484,13 +486,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       attachments: response.file_url
         ? [
             {
-              id: "uploaded",
+              id: String(response.attachment_id || ""),
               fileUrl: response.file_url,
               fileName: response.file_name || "attachment",
               fileSize: response.file_size,
               mimeType: response.mime_type,
             },
-          ]
+          ].filter((attachment) => Boolean(attachment.id))
         : [],
     };
 

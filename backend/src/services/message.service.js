@@ -139,6 +139,7 @@ exports.sendMessageWithAttachment = async ({ serverId, channelId, authorId, cont
 
     return {
       message: messageResult.rows[0],
+      attachment_id: attachmentResult.rows[0].id,
       file_url: attachmentResult.rows[0].file_url,
       file_name: attachmentResult.rows[0].file_name,
       file_size: attachmentResult.rows[0].file_size,

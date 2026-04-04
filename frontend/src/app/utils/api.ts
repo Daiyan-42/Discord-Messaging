@@ -189,6 +189,7 @@ interface ListMessagesResponse {
 
 interface SendMessageResponse {
   message: MessageApiItem;
+  attachment_id?: string;
   file_url?: string;
   file_name?: string;
   file_size?: number;
